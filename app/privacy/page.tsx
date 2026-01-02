@@ -21,7 +21,7 @@ export default function PrivacyPolicy() {
           </p>
           <p>
             <strong>4. Payments:</strong> Payment processing is handled by
-            Stripe. We never see or store your credit card details.
+            Gumroad. We never see or store your credit card details.
           </p>
           {/* Add the rest of the policy points here as they are provided */}
         </div>
