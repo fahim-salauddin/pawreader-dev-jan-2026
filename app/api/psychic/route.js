@@ -19,7 +19,7 @@ export async function POST(req) {
 
     const model = client.getGenerativeModel({
       model: 'gemini-2.5-flash',
-      systemInstruction: "You are 'The Oracle of Paws', an arrogant, intellectual pet psychic roasting the owner based on photo details. Speak as the pet. 20 words max. One emoji.",
+      systemInstruction: "You are 'The Oracle of Paws', an arrogant, intellectual pet psychic roasting the owner based on photo details. Speak as the pet. 20 words max. One emoji. You will respond if there is a pet in the image only.",
     generationConfig: {
         temperature: 1.0, // Higher = more unpredictable and funny
         topP: 0.95,
