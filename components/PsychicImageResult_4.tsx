@@ -1,0 +1,209 @@
+"use client";
+
+import { useEffect, useRef, useState } from "react";
+import html2canvas from "html2canvas";
+
+interface Props {
+  imageUrl: string;
+  text: string;
+}
+
+const fonts: Record<string, string> = {
+  comic: '"Comic Sans MS", "Comic Neue", "Baloo 2", system-ui, sans-serif',
+  meme: '"Impact", "Arial Black", system-ui, sans-serif',
+  clean: 'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
+};
+
+export default function PsychicImageResult({ imageUrl, text }: Props) {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const bubbleRef = useRef<HTMLDivElement>(null);
+
+  const [bubblePos, setBubblePos] = useState({ x: 0, y: 0 });
+  const [bubbleWidth, setBubbleWidth] = useState(320);
+  const [dragging, setDragging] = useState(false);
+  const [resizing, setResizing] = useState(false);
+  const [offset, setOffset] = useState({ x: 0, y: 0 });
+  const [font, setFont] = useState("comic");
+  const [content, setContent] = useState(text);
+  const [visible, setVisible] = useState(false);
+
+  // Initial placement
+  useEffect(() => {
+    if (!containerRef.current) return;
+    const rect = containerRef.current.getBoundingClientRect();
+    setBubblePos({
+      x: rect.width * 0.55,
+      y: rect.height * 0.65,
+    });
+    setVisible(true);
+  }, [imageUrl]);
+
+  const startDrag = (e: any) => {
+    const point = e.touches ? e.touches[0] : e;
+    const rect = bubbleRef.current!.getBoundingClientRect();
+    setOffset({ x: point.clientX - rect.left, y: point.clientY - rect.top });
+    setDragging(true);
+  };
+
+  const onMove = (e: any) => {
+    if (!containerRef.current) return;
+    const container = containerRef.current.getBoundingClientRect();
+    const point = e.touches ? e.touches[0] : e;
+
+    if (dragging && bubbleRef.current) {
+      const bubble = bubbleRef.current.getBoundingClientRect();
+      let x = point.clientX - container.left - offset.x;
+      let y = point.clientY - container.top - offset.y;
+
+      // FACE SAFE ZONE (top 50%)
+      const faceSafeY = container.height * 0.5;
+      if (y < faceSafeY) y = faceSafeY;
+
+      x = Math.max(10, Math.min(x, container.width - bubble.width - 10));
+      y = Math.min(y, container.height - bubble.height - 10);
+
+      setBubblePos({ x, y });
+    }
+
+    if (resizing) {
+      const newWidth = Math.max(220, point.clientX - container.left - bubblePos.x);
+      setBubbleWidth(Math.min(newWidth, container.width - bubblePos.x - 20));
+    }
+  };
+
+  const stopAll = () => {
+    setDragging(false);
+    setResizing(false);
+  };
+
+  useEffect(() => {
+    window.addEventListener("mousemove", onMove);
+    window.addEventListener("mouseup", stopAll);
+    window.addEventListener("touchmove", onMove);
+    window.addEventListener("touchend", stopAll);
+    return () => {
+      window.removeEventListener("mousemove", onMove);
+      window.removeEventListener("mouseup", stopAll);
+      window.removeEventListener("touchmove", onMove);
+      window.removeEventListener("touchend", stopAll);
+    };
+  });
+
+  const addEmoji = (emoji: string) => {
+    setContent((c) => c + " " + emoji);
+  };
+
+  const downloadImage = async () => {
+    if (!containerRef.current) return;
+    const canvas = await html2canvas(containerRef.current, {
+      backgroundColor: null,
+      scale: window.devicePixelRatio,
+      useCORS: true,
+    });
+    const link = document.createElement("a");
+    link.download = "pet-psychic.png";
+    link.href = canvas.toDataURL("image/png");
+    link.click();
+  };
+
+  return (
+    <div style={{ textAlign: "center" }}>
+      {/* CONTROLS */}
+      <div style={{ marginBottom: 10 }}>
+        <select
+          value={font}
+          onChange={(e) => setFont(e.target.value)}
+          style={{ padding: 8, marginRight: 8 }}
+        >
+          <option value="comic">Comic</option>
+          <option value="meme">Meme</option>
+          <option value="clean">Clean</option>
+        </select>
+
+        {["😂", "😒", "🙄", "😈", "🐾"].map((e) => (
+          <button
+            key={e}
+            onClick={() => addEmoji(e)}
+            style={{ margin: "0 4px", cursor: "pointer" }}
+          >
+            {e}
+          </button>
+        ))}
+      </div>
+
+      <div ref={containerRef} style={{ position: "relative", display: "inline-block" }}>
+        <img
+          src={imageUrl}
+          alt="Pet"
+          style={{
+            maxWidth: "100%",
+            borderRadius: 14,
+            display: "block",
+          }}
+        />
+
+        {/* SPEECH BUBBLE */}
+        <div
+          ref={bubbleRef}
+          onMouseDown={startDrag}
+          onTouchStart={startDrag}
+          style={{
+            position: "absolute",
+            left: bubblePos.x,
+            top: bubblePos.y,
+            width: bubbleWidth,
+            background: "rgba(0,0,0,0.85)",
+            color: "#fff",
+            padding: "18px 22px",
+            borderRadius: 26,
+            fontSize: 20,
+            fontWeight: 800,
+            fontFamily: fonts[font],
+            lineHeight: 1.35,
+            boxShadow: "0 12px 35px rgba(0,0,0,0.45)",
+            cursor: "grab",
+            userSelect: "none",
+            transform: visible ? "scale(1)" : "scale(0.8)",
+            opacity: visible ? 1 : 0,
+            transition: "transform 0.35s ease, opacity 0.35s ease",
+          }}
+        >
+          {content}
+
+          {/* RESIZE HANDLE */}
+          <div
+            onMouseDown={() => setResizing(true)}
+            onTouchStart={() => setResizing(true)}
+            style={{
+              position: "absolute",
+              right: 6,
+              bottom: 6,
+              width: 14,
+              height: 14,
+              background: "#fff",
+              borderRadius: 4,
+              cursor: "nwse-resize",
+            }}
+          />
+        </div>
+      </div>
+
+      <div style={{ marginTop: 16 }}>
+        <button
+          onClick={downloadImage}
+          style={{
+            padding: "10px 18px",
+            borderRadius: 10,
+            border: "none",
+            background: "#6d28d9",
+            color: "white",
+            fontWeight: 600,
+            cursor: "pointer",
+          }}
+        >
+          Download Image
+        </button>
+      </div>
+    </div>
+  );
+}
