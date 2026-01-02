@@ -18,13 +18,13 @@ export async function POST(req) {
     const client = new GoogleGenerativeAI(process.env.GOOGLE_API_KEY);
 
     const model = client.getGenerativeModel({
-      model: 'gemini-2.0-flash',
+      model: 'gemini-2.5-flash',
     });
 
     const prompt =
-      "Act as a pet psychic. Analyze this animal's expression and body language. " +
-      "Output a single, funny, first-person thought that the animal is thinking. " +
-      "Keep it under 20 words. Be sarcastic or dramatic.";
+      "Channel your inner pet psychic and decode this furry friend's vibe from its expression, pose, environment and surroundings. " +
+      "Spit out one hilariously sassy, first-person thought it's pondering—under 20 words. " +
+      "Amp up the sarcasm, drama, or whimsy for maximum LOLs!";
 
     const response = await model.generateContent([
       {
