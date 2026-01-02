@@ -306,7 +306,7 @@ export default function HomePage() {
                 rel="noopener noreferrer"
                 className="block px-6 py-3 rounded-lg bg-gradient-to-r from-purple-600 to-pink-600 font-semibold"
               >
-                Get Premium – $4.99 (Lifetime)
+                Get Premium – $6.99 (Lifetime)
               </a>
 
               <button
