@@ -6,6 +6,7 @@ import { Analytics } from "@vercel/analytics/next";
 interface Props {
   imageUrl: string;
   text: string;
+  isPremium: boolean;
 }
 
 const fonts: Record<string, string> = {

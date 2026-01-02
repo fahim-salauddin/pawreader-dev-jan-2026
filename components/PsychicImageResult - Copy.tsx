@@ -5,7 +5,7 @@ import html2canvas from "html2canvas";
 interface Props {
   imageUrl: string;
   text: string;
-  isPremium?: boolean;
+  isPremium: boolean;
 }
 
 const fonts: Record<string, string> = {
