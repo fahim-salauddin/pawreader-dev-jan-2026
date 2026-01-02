@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import PsychicImageResult from "@/components/PsychicImageResult";
+import { Analytics } from "@vercel/analytics/next"
 
 /* ======================================================
    LICENSE HELPERS
@@ -234,7 +235,7 @@ export default function HomePage() {
           Free readings today: {remaining}/3 remaining
         </div>
       )}
-
+      <Analytics />
       {!isPremium && (
         <button
           onClick={() => setShowUnlockModal(true)}
