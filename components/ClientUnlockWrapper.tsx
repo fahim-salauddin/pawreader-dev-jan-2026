@@ -5,7 +5,7 @@ import UnlockModal from './UnlockModal';
 
 interface Props {
   children: React.ReactNode;
-  isPremium: boolean;
+  isPremium?: boolean;
 } 
 
 export default function ClientUnlockWrapper({ children }: Props) {
